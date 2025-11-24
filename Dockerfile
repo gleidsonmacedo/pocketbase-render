@@ -1,22 +1,22 @@
 FROM alpine:latest
 
-# Instalar dependências necessárias
+# dependências
 RUN apk add --no-cache ca-certificates wget unzip
 
 WORKDIR /app
 
-# Baixar o PocketBase Linux direto do GitHub
-# (troque a versão v0.22.3 pela que você quiser usar)
+# baixar e extrair o pocketbase
 RUN wget -O pocketbase.zip \
   https://github.com/pocketbase/pocketbase/releases/download/v0.22.3/pocketbase_0.22.3_linux_amd64.zip \
   && unzip pocketbase.zip \
-  && mv pocketbase_*/pocketbase /app/pocketbase \
+  && mv pocketbase /app/pocketbase \
   && chmod +x /app/pocketbase \
-  && rm -rf pocketbase.zip pocketbase_*
+  && rm -f pocketbase.zip CHANGELOG.md LICENSE.md
 
-# Pasta onde o PocketBase vai guardar os dados
+# pasta de dados
 RUN mkdir -p /app/data
 
 EXPOSE 8090
 
-CMD ["/app/pocketbase", "serve", "--http=0.0.0.0:8090", "--dir", "/app/data"]
+# usa a porta do Render se existir, senão 8090 (para rodar local)
+CMD /app/pocketbase serve --http=0.0.0.0:${PORT:-8090} --dir /app/data
